@@ -1,0 +1,11 @@
+#! /bin/bash
+
+if [ $(id -u) -ne 0 ]
+then
+   echo "$0 bust be run as root" 
+   exit 1
+fi
+
+LASTKERNEL=$(rpm -q kernel --qf "%{INSTALLTIME} %{VERSION}-%{RELEASE}.%{ARCH}\n" | sort -nr | awk 'NR==1 {print $2}')
+kexec -l /boot/vmlinuz-$LASTKERNEL --initrd=/boot/initramfs-$LASTKERNEL.img --reuse-cmdline
+systemctl kexec
